@@ -28,7 +28,7 @@ td,th{border:1px solid #ccc;padding:6px}
 <p id="month"></p>
 <button onclick="draw()">Draw Winner</button>
 <button onclick="exp()">Export History</button>
-<button onclick="reset()">Reset (PIN)</button>
+<button onclick="reset()">Reset Everything (PIN)</button>
 
 <div id="winner">No draw yet</div>
 <ol id="h"></ol>
@@ -102,12 +102,13 @@ function exp() {
 }
 
 function reset() {
-  let p = prompt("Enter PIN");
+  let p = prompt("Enter PIN to clear everything");
   if (p !== data.pin) return alert("Wrong PIN");
   
-  data.remaining = [...data.members];
+  data.members = [];
+  data.remaining = [];
   data.history = [];
-  winner.textContent = "Reset complete";
+  winner.textContent = "Everything cleared!";
   save();
 }
 
@@ -115,4 +116,3 @@ render();
 </script>
 </body>
 </html>
-
