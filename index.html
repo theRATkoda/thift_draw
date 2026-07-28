@@ -1,10 +1,118 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Thrift Draw</title><style>body{font-family:Arial;margin:20px;background:#eef}div{max-width:700px;margin:auto;background:#fff;padding:20px;border-radius:8px}input,button{padding:8px;margin:4px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ccc;padding:6px}#winner{font-size:22px;font-weight:bold;margin:10px 0}</style></head><body><div><h2>₦50,000 Monthly Thrift Draw</h2><input id=n placeholder=No><input id=nm placeholder=Name><button onclick=add()>Add</button><table><thead><tr><th>No</th><th>Name</th></tr></thead><tbody id=t></tbody></table><p id=month></p><button onclick=draw()>Draw Winner</button><button onclick=exp()>Export History</button><button onclick=reset()>Reset (PIN)</button><div id=winner>No draw yet</div><ol id=h></ol></div><script>
-let data=JSON.parse(localStorage.getItem("thrift")||'{"members":[],"remaining":[],"history":[],"pin":"1234"}');
-function save(){localStorage.setItem("thrift",JSON.stringify(data));render()}
-function render(){t.innerHTML="";data.members.forEach(m=>t.innerHTML+=`<tr><td>${m.n}</td><td>${m.name}</td></tr>`);h.innerHTML="";data.history.forEach(x=>h.innerHTML+=`<li>Month ${x.m}: ${x.name} (#${x.n})</li>`);month.textContent="Next Draw: Month "+(data.history.length+1);}
-function add(){if(data.members.length>=10)return alert("Max 10");let n.value}
-function add(){let no=document.getElementById("n").value.trim(),name=document.getElementById("nm").value.trim();if(!no||!name)return; if(data.members.some(m=>m.n==no))return alert("Duplicate"); let m={n:no,name};data.members.push(m);data.remaining.push(m);n.value="";nm.value="";save();}
-function draw(){if(!data.remaining.length){winner.textContent="Everyone has won.";return;}let i=Math.floor(Math.random()*data.remaining.length),w=data.remaining.splice(i,1)[0];data.history.push({m:data.history.length+1,n:w.n,name:w.name});winner.textContent="🏆 "+w.name+" (#"+w.n+")";save();}
-function exp(){let txt=data.history.map(x=>`Month ${x.m}: ${x.name} (#${x.n})`).join("\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:"text/plain"}));a.download="draw_history.txt";a.click();}
-function reset(){let p=prompt("Enter PIN");if(p!==data.pin)return alert("Wrong PIN");data.remaining=[...data.members];data.history=[];winner.textContent="Reset complete";save();}
-render();</script></body></html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thrift Draw</title>
+<style>
+body{font-family:Arial;margin:20px;background:#eef}
+div{max-width:700px;margin:auto;background:#fff;padding:20px;border-radius:8px}
+input,button{padding:8px;margin:4px}
+table{width:100%;border-collapse:collapse}
+td,th{border:1px solid #ccc;padding:6px}
+#winner{font-size:22px;font-weight:bold;margin:10px 0}
+</style>
+</head>
+<body>
+<div>
+<h2>₦50,000 Monthly Thrift Draw</h2>
+<input id="n" placeholder="No">
+<input id="nm" placeholder="Name">
+<button onclick="add()">Add</button>
+
+<table>
+<thead><tr><th>No</th><th>Name</th></tr></thead>
+<tbody id="t"></tbody>
+</table>
+
+<p id="month"></p>
+<button onclick="draw()">Draw Winner</button>
+<button onclick="exp()">Export History</button>
+<button onclick="reset()">Reset (PIN)</button>
+
+<div id="winner">No draw yet</div>
+<ol id="h"></ol>
+</div>
+
+<script>
+let data = JSON.parse(localStorage.getItem("thrift") || '{"members":[],"remaining":[],"history":[],"pin":"1234"}');
+
+function save() {
+  localStorage.setItem("thrift", JSON.stringify(data));
+  render();
+}
+
+function render() {
+  t.innerHTML = "";
+  data.members.forEach(m => {
+    t.innerHTML += `<tr><td>${m.n}</td><td>${m.name}</td></tr>`;
+  });
+
+  h.innerHTML = "";
+  data.history.forEach(x => {
+    h.innerHTML += `<li>Month ${x.m}: ${x.name} (#${x.n})</li>`;
+  });
+
+  month.textContent = "Next Draw: Month " + (data.history.length + 1);
+}
+
+function add() {
+  if (data.members.length >= 10) return alert("Max 10 members");
+  
+  let no = document.getElementById("n").value.trim();
+  let name = document.getElementById("nm").value.trim();
+  
+  if (!no || !name) return alert("Please enter both Number and Name");
+  if (data.members.some(m => m.n == no)) return alert("Duplicate number");
+
+  let m = {n: no, name: name};
+  data.members.push(m);
+  data.remaining.push(m);
+
+  document.getElementById("n").value = "";
+  document.getElementById("nm").value = "";
+  save();
+}
+
+function draw() {
+  if (!data.remaining.length) {
+    winner.textContent = "Everyone has already won.";
+    return;
+  }
+  
+  let i = Math.floor(Math.random() * data.remaining.length);
+  let w = data.remaining.splice(i, 1)[0];
+  
+  data.history.push({
+    m: data.history.length + 1,
+    n: w.n,
+    name: w.name
+  });
+  
+  winner.textContent = "🏆 " + w.name + " (#" + w.n + ")";
+  save();
+}
+
+function exp() {
+  let txt = data.history.map(x => `Month ${x.m}: ${x.name} (#${x.n})`).join("\n");
+  let a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([txt], {type: "text/plain"}));
+  a.download = "draw_history.txt";
+  a.click();
+}
+
+function reset() {
+  let p = prompt("Enter PIN");
+  if (p !== data.pin) return alert("Wrong PIN");
+  
+  data.remaining = [...data.members];
+  data.history = [];
+  winner.textContent = "Reset complete";
+  save();
+}
+
+render();
+</script>
+</body>
+</html>
+
